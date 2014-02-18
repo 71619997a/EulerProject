@@ -5,15 +5,21 @@ Created on Jan 25, 2014
 '''
 import math
 import operator
-
+import time
+import numpy
+import itertools
+from sets import Set
+alphabet="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 def multList(nums):
     return reduce(operator.mul, nums, 1)
 
 def addList(nums):
-    return reduce(operator.add, nums, 1)
+    return reduce(operator.add, nums, 0)
 
 def isInt(num):
     return num == (int)(num)
+
+
 
 def getBigFactor(num):
     sqrt=(int)(math.floor(math.sqrt(num)))
@@ -49,20 +55,27 @@ def isPalindrome(num):
             return False
         
 def isPrime(num):
-    for i in range(2,(int)(num**.5)+1):
-        if((num*1.0)/(i*1.0)==(int)(num/i)):
+    for i in range(2,(int)(int(num)**.5)+1):
+        if((int(num)*1.0)/(i*1.0)==(int)(int(num)/i)):
             return False
     return True
 
 def primesTo(num):
-    primes=[2]
-    for i in range(3,num):
-        if(isPrime(i)):
-            primes.append(i)
+    primes=[2,3,5,7,11,13]
+    for i in range(17,num):
+        for j in primes:
+            if((i*1.0)/(j*1.0)==(int)(i/j)):
+                break
+            if((int)(j*j)>i):
+                primes.append(i)
+                break
+    return primes
+        
+    return True
     return primes
 
 def isDiv(num,div):
-    return (num*1.0)/(div*1.0)==(int)(num/div)
+    return num%div==0
     
 def sumPower(num,n):
     total=1
@@ -88,23 +101,144 @@ def dimensionList(values):
         a=[a for i in range(values[i])] #the array = the old array but length # of times
     return a #smartness, nice one
 
-def split2DString(string,x,digits):
-    pass
+def divisors(num):
+    div=2
+    divisor=[1]
+    while(div*div<=num):
+        if(isDiv(num,div)):
+            divisor.append(div)
+            if(not div*div==num):
+                divisor.append(num/div)
+        div+=1
+    divisor.sort()
+    divisor.append(num)
+    return divisor
 
-def addPrimesTo(num):
-    primes=[2,3,5,7,11,13]
-    for i in range(17,num):
-        for j in primes:
-            if((i*1.0)/(j*1.0)==(int)(i/j)):
-                break
-            if((int)(j*j)>i):
-                primes.append(i)
-                break
-    return primes
+def properDivisors(num):
+    div=divisors(num)
+    div.pop()
+    return div
+
+def countCollatzChain(num):
+    count=1
+    while (num != 1):
+        if(num % 2 == 0):
+            num/=2
+        else:
+            num=3*num+1
+        count+=1
+    return count
+
+def digits(num):
+    return strToDigits(str(num))
+
+def factorial(num):
+    return multList(range(2,num+1))
+
+def letter(num):
+    return alphabet[num-1]
+
+def numLetter(let):
+    return ord(let)-ord('A')+1
+
+def abundantNumbersTo(num):
+    nums=[]
+    for i in range(11,num+1):
+        if(addList(properDivisors(i))>i):
+            nums.append(i)
+    return nums
+    
+
+def powerset(seq):
+    """
+    Returns all the subsets of this set. This is a generator.
+    """
+    if len(seq) <= 1:
+        yield seq
+        yield []
+    else:
+        for item in powerset(seq[1:]):
+            yield [seq[0]]+item
+            yield item
+
+def fibonacci():
+    back=0
+    now=1
+    count = 1
+    while(True):
+        yield now,count
+        lol=back
+        back=now
+        now+=lol
+        count+=1
         
-    return True
-    return primes
 
-string="08022297381500400075040507785212507791084949994017811857608717409843694804566200814931735579142993714067538830034913366552709523046011426924685601325671370236912231167151676389419236542240402866331380244732609903450244753353783684203517125032988128642367102638406759547066183864706726206802621220956394396308409166499421245558056673992697177878968314883489637221362309750076442045351400613397343133957817532822753167159403800462161409535692163905429635314755588824001754243629855786560048357189070544443744602158515417581980816805944769287392138652177704895540045208839735991607975732162626793327986688366887576220720346336746551232639353690442167338253911249472180846293240627636206936417230238834629969826759857404361620733529783190017431497148868116235705540170547183515469169233486143520189196748"
+def digitsToNum(sett):
+    strang=""
+    for i in range(len(sett)):
+        strang+=str(sett[i])
+    return int(strang)
 
-print dimensionList([2,3,4])
+def primeSequence(a,b):
+    n=0
+    while(isPrime(abs(n**2+a*n+b))):
+        n+=1
+    return n
+
+def genPyTriple(p,q):
+    return [p**2-q**2,2*p*q,p**2+q**2]
+
+def rightPerim(num):
+    vals=[]
+    div=divisors(num)
+    for i in div:
+        for j in div:
+            trick=j/(2*i)-i
+            
+            if(j/(2*i)-i<i and j/(2*i)-i>0 and isDiv(j,2*i)):
+                vals.append(i)
+    for i in range(len(vals)):
+        vals[i]=genPyTriple(vals[i],num/(2*vals[i])-vals[i])
+    return vals
+
+def cycle(sttr):
+    return sttr[-1]+sttr[:-1]
+
+def cycles(sttr):
+    cyc=[]
+    for i in range(len(sttr)):
+        cyc.append(sttr)
+        sttr=cycle(sttr)
+    return cyc
+
+def digPow(num,pow):
+    dig=digits(num)
+    ret=0
+    for i in dig:
+        ret+=i**pow
+    return ret
+
+def digFactorial(num):
+    dig=digits(num)
+    ret=0
+    for i in dig:
+        ret+=math.factorial(i)
+    return ret
+
+def allPositive(arr):
+    
+    if (filter(lambda x: x>=0, arr)==arr):
+        return True 
+    else:
+        return False
+
+t0time = time.time() #dont fuck wit dis
+############################################ HERE IS WHERE DOING STUFF IS ############################################
+for i in divisors(120):
+    for j in numpy.multiply(120/i,rightPerim(i)):
+        if (allPositive(j)):
+            print j
+
+
+t1time = time.time() #dont fuck wit dis
+print (t1time - t0time)*1000,"ms" #dont fuck wit dis
